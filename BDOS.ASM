@@ -1,8 +1,9 @@
 _ERROR:
+	LD	B,0
 	AND	A
 	RET
 
-BDOS0:
+ROM_BDOS:
 	PUSH	HL
 	LD	A,C
 	CP	07FH
