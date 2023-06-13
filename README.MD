@@ -38,7 +38,7 @@ https://github.com/tablacus/TablacusDiskRomLite/releases
 BASIC形式でない場合は`File not OPEN`エラーが出ます。MSX DISK BASICで一度LOADしてSAVEして下さい。  
 アスキー形式を中間言語に変換する方法を知っている方が居られましたら教えていただけると幸いです。
 
-3. ~~`BLOAD`で`S`オプションは使えません。  ~~
+~~`BLOAD`で`S`オプションは使えません~~
 ~~VRAMにどう放り込むか分かっていないのでこちらも情報お待ちしております。~~
 
 4. `BLOAD`でオフセットの指定も使えません。
