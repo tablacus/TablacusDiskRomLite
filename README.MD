@@ -8,8 +8,7 @@ ROM起動後にH.GONEでフックして、LOAD、BLOAD、FILESをROMディスク
 
 置き換えでHIMEMを0F300Hに変更しています。
 
-[Tabacus DISK ROM](https://github.com/tablacus/TablacusDiskRom)との違いはMSXのDISK BIOS ROMが不要なことと現時点ではBASIC環境専用という事、対応ディスクが2DD1枚に限定されるという点になります。
-
+[Tabacus DISK ROM](https://github.com/tablacus/TablacusDiskRom)との違いはMSXのDISK BIOS ROMが不要なことと現時点ではBASIC環境専用という点になります。
 
 ## ダウンロード
 
@@ -22,6 +21,15 @@ https://github.com/tablacus/TablacusDiskRomLite/releases
 
 ※DISKROM.BIN(8KB)の後ろに2DDのDSKファイルを連結しさえすればやり方は何を使ってもOKです。
 
+2DDの２枚組をROM化する事もできます。誑かしているだけなので２ドライブ使うには２ドライブマシンに限るのかと思いましたが、エミュレータフロッピー１台にしても２枚目をBドライブとして見ることができました。
+
+1. DISKROM.BIN(16KB)の後ろに2DDのDSKファイルを2つ連結してください。
+
+Windowsのコマンドラインで２枚のイメージファイルを連結する例
+```bat
+copy /b DISKROM.BIN + DISK1.DSK + DISK2.dsk DISK1_2.ROM
+```
+
 ## 実行方法
 
 1. ROMスロットに`MSX.ROM`をセット
@@ -31,8 +39,8 @@ https://github.com/tablacus/TablacusDiskRomLite/releases
 
 ## 現時点の制限と課題
 
-1. パラメータは文字列しか使えない
-`LOAD "FILE.BAS"`の様に必ず、固定の文字列にする必要があります。変数は使えません。
+1. ~~パラメータは文字列しか使えない~~  
+~~`LOAD "FILE.BAS"`の様に必ず、固定の文字列にする必要があります。変数は使えません。~~
 
 2. ~~`LOAD`で扱えるのはBASIC形式のファイル形式に限ります。MSX-BASIC アスキーファイルは扱えません。~~  
 ~~BASIC形式でない場合は`File not OPEN`エラーが出ます。MSX DISK BASICで一度LOADしてSAVEして下さい。~~    
@@ -41,8 +49,8 @@ https://github.com/tablacus/TablacusDiskRomLite/releases
 3. ~~`BLOAD`で`S`オプションは使えません~~  
 ~~VRAMにどう放り込むか分かっていないのでこちらも情報お待ちしております。~~
 
-4. `BLOAD`でオフセットの指定は使えません。
-BSAVE形式で保存したファイルを保存した場所に読み込むことになります。
+4. ~~`BLOAD`でオフセットの指定は使えません。~~  
+~~BSAVE形式で保存したファイルを保存した場所に読み込むことになります。~~
 
 5. ~~`BLOAD`,`LOAD`,`RUN`,`FILES`の後ろにマルチステートメントで別の命令を繋ぐことはできません。~~  
 ~~別の行で行ってください。~~
