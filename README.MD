@@ -6,7 +6,7 @@
 このソフトはMSXのDISK環境のソフトをROM化するソフトです。  
 ROM起動後にH.GONEでフックして、LOAD、BLOAD、FILESをROMディスクを使うものに置き換えています。  
 
-置き換えでHIMEMを0F300Hに変更しています。
+置き換えでHIMEMを0F280Hに変更しています。
 
 [Tabacus DISK ROM](https://github.com/tablacus/TablacusDiskRom)との違いはMSXのDISK BIOS ROMが不要なことと現時点ではBASIC環境専用という点になります。
 
@@ -74,3 +74,7 @@ copy /b DISKROM.BIN + DISK1.DSK + DISK2.dsk DISK1_2.ROM
 https://github.com/hra1129/msx_documents/blob/main/memory/MSX_memory_architecture.pdf
 
 また、ASCATのMSXテクニカルガイドブック（第4版＋ディスク編）もかなり参考にさせてもらいました。ありがとうございます。
+
+[hide_san(ヒデ)](https://twitter.com/_msx_)さん、Lite版でうまく動かないディスクイメージを送っていただきありがとうございます。
+
+[ごりぽん](https://twitter.com/goripon_tw)さん、RAM捜索の創作方法、ありがとうございます。
