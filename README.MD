@@ -36,6 +36,11 @@ copy /b DISKROM.BIN + DISK1.DSK + DISK2.dsk DISK1_2.ROM
 2. ROMイメージのタイプを`ASCII-8K`、`Konami-8K`(512MB以下の場合のみ)のいずれかに設定
 3. 起動しない場合はリセットする
 
+## WebMSX
+
+[WebMSX](https://webmsx.org/)でサンプルの`MSX.ROM`を起動するリンクはこちら
+
+https://webmsx.org/?MACHINE=MSX2J&P=NODISK&CARTRIDGE1_URL=https://github.com/tablacus/TablacusDiskRomLite/raw/main/MSX.ROM
 
 ## 現時点の制限と課題
 
