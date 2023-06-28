@@ -80,6 +80,6 @@ https://github.com/hra1129/msx_documents/blob/main/memory/MSX_memory_architectur
 
 また、ASCATのMSXテクニカルガイドブック（第4版＋ディスク編）もかなり参考にさせてもらいました。ありがとうございます。
 
-[hide_san(ヒデ)](https://twitter.com/_msx_)さん、Lite版でうまく動かないディスクイメージを送っていただきありがとうございます。
+[hide_san(ヒデ)](https://twitter.com/_msx_)さん、[Takashi Kobayashi](https://twitter.com/nf_ban)さん、Lite版でうまく動かないディスクイメージを送っていただきありがとうございます。
 
 [ごりぽん](https://twitter.com/goripon_tw)さん、RAM捜索の創作方法、ありがとうございます。
