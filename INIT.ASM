@@ -319,6 +319,12 @@ _RESULT:
 	DB	0
 _BANK:
 	DB	0
+CLSZ:				;クラスタサイズ
+	DW	1024
+CLSZ_H	EQU	$-1		;クラスタサイズ上位8ビット
+SECSZ:				;セクタサイズ
+	DW	512
+SECSZ_H	EQU	$-1		;セクタサイズ上位8ビット
 RR_LOW:
 	DW	0
 RR_MID	EQU	$-1
@@ -332,8 +338,11 @@ _DTPS:
 	DW	0
 _DTA:
 	DW	0
+#if exists USE_RAM_BLOAD_S
+#else
 FLG_LDIR:
 	DB	0
+#endif
 ;	BDOS
 	RST	30H
 	DB	0

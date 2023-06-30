@@ -19,19 +19,22 @@ DISKIO1:
 	PUSH	AF		;A=8KB単位でカートリッジ内のディスクが存在する位置を指定
 
 	EX	DE,HL		;DE=受け取る読み出し先のメモリアドレス HL=セクタ番号
-	ADD	HL,HL
-	LD	C,L		;C=読み出し元(セクタ番号*2)※1セクタ512バイトなので倍にしておく
+	PUSH	AF
+	LD	A,(SECSZ_H)
+	CALL	MUL_AHL
+	POP	AF
+	LD	C,L		;C=読み出し元
 	ADD	HL,HL		;64KB→32KB
 	ADD	HL,HL		;32KB→16KB
-	ADD	HL,HL		;16KB→8KB
+	ADD	HL,HL		;16KB→8KB	バンク切り替えのサイズに合わせる
 	ADD	A,H
 	LD	(BANK1_SEL),A	;ASCII-8K/Konami-8K共通で使える
 	LD	(_BANK),A
 	LD	A,C		;C=読み出し元
-	AND	01FH		;セグメントのサイズでフィルタする(8K:1F/16K:3F)
+	AND	01FH		;セグメントのサイズでフィルタする(8K:1F)
 	ADD	A,high BANK1_ADR
 	LD	H,A
-	LD	BC,00200H	;BCは読み出すセクタサイズ(512バイト)
+	LD	BC,(SECSZ)	;BCは読み出すセクタサイズ
 	LD	L,C		;C=0
 	LDIR
 	EX	DE,HL
@@ -87,7 +90,6 @@ IS_BPB:
 ; out
 ; CF=0ディスクは存在する CF=1 ディスクは存在しない
 	CALL	GET_DISK_BANK
-	LD	(BANK1_SEL),A
 
 	LD	A,(BANK1_ADR+21)	;BPB_Media
 	CP	1
@@ -98,6 +100,8 @@ IS_BPB:
 	RET	C
 
 	LD	A,(BANK1_ADR+12)	;BPB_BytsPerSec
+	CP	1
+	RET	Z
 	CP	2
 	RET	Z
 	CP	4
@@ -108,7 +112,6 @@ IS_BPB:
 GETDPB:
 	PUSH	HL
 	CALL	GET_DISK_BANK
-	LD	(BANK1_SEL),A
 
 	LD	A,(BANK1_ADR+21)	;BPB_Media	
 	OR	A
@@ -136,7 +139,7 @@ GETDPB1:
 	JR	C,GETDPB1
 	LD	(IX+5),B		;DIRSHFT
 
-	LD	A,(BANK1_ADR+13)	;BPB_SecPerClus	
+	LD	A,(BANK1_ADR+13)	;BPB_SecPerClus
 	DEC	A
 	LD	(IX+6),A		;CLUSMSK
 
@@ -269,13 +272,31 @@ GET_DISK_BANK_FDRV:
 GET_DISK_BANK:
 	OR	A		;A=DRIVE
 	LD	A,DISK_BANK
-	RET	Z
+	JR	Z,SET_DISK_BANK
 #if exists FIX_DRIVE
 	LD	A,FIX_DRIVE
 #else
 	LD	A,(B_DRIVE)
 #endif
+SET_DISK_BANK:
+	LD	(BANK1_SEL),A
+	PUSH	AF
+	PUSH	HL
+	LD	HL,(BANK1_ADR+11)	;BPB_BytsPerSec	
+	LD	(SECSZ),HL
+	LD	A,(BANK1_ADR+13)	;BPB_SecPerClus
+	CALL	MUL_AHL
+	LD	(CLSZ),HL
+	POP	HL
+	POP	AF
 	RET
+
+;	HL = HL * A ただし、A=1,2,4,8,16,32,64,128(2のべき乗に限る)
+MUL_AHL:
+	RRA		;->CF
+	RET	C
+	ADD	HL,HL
+	JR	MUL_AHL
 
 DPB2DD:
 	DB	0F9H	;MEDIA

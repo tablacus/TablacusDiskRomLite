@@ -2,8 +2,9 @@
 ;	Programmed by
 ;	Gaku (Lovers/Tablacus)
 ;
-
 	INCLUDE	"DEF.ASM"
+
+;USE_RAM_BLOAD_S	EQU	1	;先頭のコメントを外すとBLOAD,SでRAMを使う
 
 	ORG	RUN
 
@@ -33,7 +34,7 @@
 	ORG	0407FH
 	RET
 ; Version
-	DB	"Tablacus DISK ROM Lite v0.1.2.1",0
+	DB	"Tablacus DISK ROM Lite v0.1.3.0",0
 
 	ORG	040FFH
 	RET
