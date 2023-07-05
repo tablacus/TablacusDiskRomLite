@@ -6,4 +6,6 @@ rem
 set ASM=\tool\AILSZ80\AILZ80ASM.exe
 
 %ASM% -lst -bin DISKROM.BIN -i DISKROM.ASM -f -gap 0 -sym
+%ASM% -lst -bin DISKROM32.BIN -i DISKROM32.ASM -f -gap 0 -sym
+
 msxcat

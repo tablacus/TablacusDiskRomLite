@@ -4,6 +4,7 @@
 ;
 	INCLUDE	"DEF.ASM"
 
+USE_NORMAL_32K_ROM		EQU	1	;ノーマル32KB ROMを作成する
 ;USE_RAM_BLOAD_S	EQU	1	;先頭のコメントを外すとBLOAD,SでRAMを使う
 
 	ORG	RUN
