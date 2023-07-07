@@ -32,8 +32,16 @@ copy /b DISKROM.BIN + DISK1.DSK + DISK2.dsk DISK1_2.ROM
 
 ## 実行方法
 
+### メガROMの場合
+
 1. ROMスロットに`MSX.ROM`をセット
 2. ROMイメージのタイプを`ASCII-8K`、`Konami-8K`(512MB以下の場合のみ)のいずれかに設定
+3. 起動しない場合はリセットする
+
+### 32KBの場合
+
+1. ROMスロットに`MSX32.ROM`をセット
+2. ROMイメージのタイプを`Normal ROM`に設定
 3. 起動しない場合はリセットする
 
 ## WebMSX
