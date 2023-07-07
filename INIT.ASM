@@ -384,6 +384,8 @@ BASSTK:
 	DW	0
 _HL:
 	DW	0
+_SP:
+	DW	0
 
 ISC_E:
 	ORG	$$+RUN			;$DEPHASE
