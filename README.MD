@@ -35,7 +35,7 @@ copy /b DISKROM.BIN + DISK1.DSK + DISK2.dsk DISK1_2.ROM
 ### メガROMの場合
 
 1. ROMスロットに`MSX.ROM`をセット
-2. ROMイメージのタイプを`ASCII-8K`、`Konami-8K`(512MB以下の場合のみ)のいずれかに設定
+2. ROMイメージのタイプを`ASCII-8K`、`Konami-8K`か`Konami-SCC`(512MB以下の場合のみ)のいずれかに設定
 3. 起動しない場合はリセットする
 
 ### 32KBの場合

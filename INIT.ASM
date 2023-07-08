@@ -96,12 +96,14 @@ INIT_ROM:
 #if exists USE_NORMAL_32K_ROM
 #else
 	XOR	A
-	LD	(BANK1_SEL),A
+	LD	(BANK1_SEL),A			;ASCII-8K/Konami-8K
+	LD	(KONAMI_SCC_BANK1_SEL),A	;Konami-8K/Konami-SCC
 	LD	A,(BANK1_ADR)
 	CP	'A'
 	JR	NZ,NOT_8K_BANK
 	LD	A,DISK_BANK
-	LD	(BANK1_SEL),A
+	LD	(BANK1_SEL),A			;ASCII-8K/Konami-8K
+	LD	(KONAMI_SCC_BANK1_SEL),A	;Konami-8K/Konami-SCC
 #endif
 	CALL	RSLREG		;read primary slot #
 	RLCA
@@ -469,7 +471,7 @@ RSTKEE:
 	RET
 
 MSG_ERROR_ROM_MODE:
-	DB	"ASCII-8K/Konami-8K only!",13,10
+	DB	"ASCII-8K/Konami-8K/Konami-SCC only!",13,10
 NULL:
 	DB	0
 

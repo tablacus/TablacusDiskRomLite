@@ -28,7 +28,8 @@ DISKIO1:
 	ADD	HL,HL		;32KB→16KB
 	ADD	HL,HL		;16KB→8KB	バンク切り替えのサイズに合わせる
 	ADD	A,H
-	LD	(BANK1_SEL),A	;ASCII-8K/Konami-8K共通で使える
+	LD	(BANK1_SEL),A			;ASCII-8K/Konami-8K
+	LD	(KONAMI_SCC_BANK1_SEL),A	;Konami-8K/Konami-SCC
 	LD	(_BANK),A
 	LD	A,C		;C=読み出し元
 	AND	01FH		;セグメントのサイズでフィルタする(8K:1F)
@@ -286,7 +287,8 @@ GET_DISK_BANK:
 	LD	A,(B_DRIVE)
 #endif
 SET_DISK_BANK:
-	LD	(BANK1_SEL),A
+	LD	(BANK1_SEL),A			;ASCII-8K/Konami-8K
+	LD	(KONAMI_SCC_BANK1_SEL),A	;Konami-8K/Konami-SCC
 	PUSH	AF
 	PUSH	HL
 	LD	HL,(BANK1_ADR+11)	;BPB_BytsPerSec	
