@@ -5,7 +5,6 @@
 	INCLUDE	"DEF.ASM"
 
 USE_NORMAL_32K_ROM		EQU	1	;ノーマル32KB ROMを作成する
-;USE_RAM_BLOAD_S	EQU	1	;先頭のコメントを外すとBLOAD,SでRAMを使う
 
 	ORG	RUN
 
@@ -35,7 +34,7 @@ USE_NORMAL_32K_ROM		EQU	1	;ノーマル32KB ROMを作成する
 	ORG	0407FH
 	RET
 ; Version
-	DB	"Tablacus DISK ROM Lite v0.1.4.4",0
+	DB	"Tablacus DISK ROM Lite v0.1.5.0",0
 
 	ORG	040FFH
 	RET

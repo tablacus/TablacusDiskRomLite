@@ -4,8 +4,6 @@
 ;
 	INCLUDE	"DEF.ASM"
 
-;USE_RAM_BLOAD_S	EQU	1	;先頭のコメントを外すとBLOAD,SでRAMを使う
-
 	ORG	RUN
 
 ; MSX ROM header
@@ -34,7 +32,7 @@
 	ORG	0407FH
 	RET
 ; Version
-	DB	"Tablacus DISK ROM Lite v0.1.4.4",0
+	DB	"Tablacus DISK ROM Lite v0.1.5.0",0
 
 	ORG	040FFH
 	RET
