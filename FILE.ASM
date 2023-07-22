@@ -367,7 +367,7 @@ RN1:
 	CALL	SEARCH_END
 	OR	A
 	JR	Z,REM
-					;マルチステートメントの処理
+RN3:					;マルチステートメントの処理
 	LD	A,(HL)
 
 	CP	0B5H			;LOAD
@@ -378,10 +378,16 @@ RN1:
 	JR	Z,ROM_FILES
 	CP	0D6H			;COPY
 	JP	Z,ROM_COPY
+	CP	020H
+	JR	Z,RN_SP
+
 	LD	A,028H			;JR Z,
 	LD	(SWC_BLOAD_M),A
 	LD	A,(HL)
 	RET
+RN_SP:
+	INC	HL
+	JR	RN3
 
 REM:
 	EX	DE,HL
@@ -1097,8 +1103,6 @@ SEARCH_END1:
 	JR	NZ,SEARCH_END
 	LD	A,(HL)
 	CP	':'
-	JR	Z,SEARCH_END1
-	CP	020H
 	JR	Z,SEARCH_END1
 	RET
 
