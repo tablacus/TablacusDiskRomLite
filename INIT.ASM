@@ -94,15 +94,17 @@ INIT_ROM:
 	LD	(H_STKE+4),A
 	LD	(H_PHYD+4),A
 
-#if exists USE_NORMAL_32K_ROM
-#else
 	XOR	A
 	LD	(BANK1_SEL),A			;ASCII-8K/Konami-8K
 	LD	(KONAMI_SCC_BANK1_SEL),A	;Konami-8K/Konami-SCC
 	LD	A,(BANK1_ADR)
 	CP	'A'
-	JR	NZ,NOT_8K_BANK
+#if exists USE_NORMAL_32K_ROM
+	JR	Z,NOT_BANK_TYPE
 	LD	A,DISK_BANK
+	LD	(ASCII16_BANK1_SEL),A		;ASCII-16K
+#else
+	JR	NZ,NOT_BANK_TYPE
 	LD	(BANK1_SEL),A			;ASCII-8K/Konami-8K
 	LD	(KONAMI_SCC_BANK1_SEL),A	;Konami-8K/Konami-SCC
 #endif
@@ -163,8 +165,8 @@ OK_FIX_DRIVE:
 #endif
 	RET
 
-NOT_8K_BANK:
-				;ASCII-8K/Konami-8Kではない(ASCII-16K等)
+NOT_BANK_TYPE:
+				;ROMのタイプが違う
 	LD	HL,MSG_ERROR_ROM_MODE
 	CALL	MSX
 	LD	IY,(EXPTBL-1) ;メインROMスロット
@@ -342,6 +344,8 @@ _RESULT:
 	DB	0
 _BANK:
 	DB	0
+_BANK1:
+	DB	0
 CLSZ:				;クラスタサイズ
 	DW	1024
 CLSZ_H	EQU	$-1		;クラスタサイズ上位8ビット
@@ -363,12 +367,6 @@ _DTA:
 	DW	0
 FLG_LDIR:
 	DB	0
-
-;	BDOS
-	RST	30H
-	DB	0
-	DW	ROM_BDOS
-	RET	
 _FCB:
 	DW	0
 _BUF:
@@ -397,8 +395,10 @@ B_DRIVE:
 	DB	0
 _DVSW:
 	DB	0
-FCBX:
+DIRENT1:
 	DW	0
+_DIR_BANK:
+	DB	0
 LEFTX:
 	DW	0
 PARAM0:
@@ -409,7 +409,10 @@ FDRV:
 	DB	0
 FNAME:
 	DS	8+3
-
+_CD:			;カレントディレクトリ
+	DW	0
+_CDX:
+	DW	0
 BASSTK:
 	DW	0
 _HL:
@@ -499,7 +502,11 @@ RSTKEE:
 	RET
 
 MSG_ERROR_ROM_MODE:
+#if exists USE_NORMAL_32K_ROM
+	DB	"Normal ROM/ASCII-16K only!",13,10
+#else
 	DB	"ASCII-8K/Konami-8K/Konami-SCC only!",13,10
+#endif
 NULL:
 	DB	0
 

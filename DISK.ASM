@@ -23,6 +23,25 @@ DISKIO1:
 	LD	A,(SECSZ_H)
 	CALL	MUL_AHL
 	POP	AF
+#if exists USE_NORMAL_32K_ROM
+	LD	A,L
+	PUSH	BC
+	LD	BC,-00020H	;先頭の8KB部分
+	ADD	HL,BC
+	POP	BC
+	JR	NC,DISKIO2
+	LD	C,L		;C=読み出し元
+	ADD	HL,HL	;64KB→32KB
+	ADD	HL,HL	;32KB→16KB	バンク切り替えのサイズに合わせる
+	CALL	GET_DISK_BANK_FDRV
+	ADD	A,H
+	LD	(ASCII16_BANK1_SEL),A	;ASCII-16K
+	LD	(_BANK),A
+	LD	L,C		;C=読み出し元
+	LD	A,03FH		;セグメントのサイズでフィルタする(16K:3F)
+	AND	L
+	ADD	A,020H
+#else
 	LD	C,L		;C=読み出し元
 	ADD	HL,HL		;64KB→32KB
 	ADD	HL,HL		;32KB→16KB
@@ -33,11 +52,13 @@ DISKIO1:
 	LD	(_BANK),A
 	LD	A,C		;C=読み出し元
 	AND	01FH		;セグメントのサイズでフィルタする(8K:1F)
+#endif
+DISKIO2:
 	ADD	A,high BANK1_ADR
 	LD	H,A
 	LD	BC,(SECSZ)	;BCは読み出すセクタサイズ
 	LD	L,C		;C=0
-	LDIR
+	CALL	ROM_LDIR
 	EX	DE,HL
 	POP	AF
 	POP	DE
@@ -48,6 +69,7 @@ DISKIO1:
 
 	POP	HL
 	XOR	A
+
 	EI
 	RET
 
@@ -161,7 +183,7 @@ GETDPB2:
 	LD	(IX+10),A		;FATCNT
 
 	LD	A,(BANK1_ADR+17)	;BPB_RootEntCnt	
-	LD	(IX+11),A		;FATCNT
+	LD	(IX+11),A		;MAXENT
 
 	LD	DE,(BANK1_ADR+22)	;BPB_FATSz16	
 	LD	(IX+16),E		;FATSIZ
@@ -287,8 +309,12 @@ GET_DISK_BANK:
 	LD	A,(B_DRIVE)
 #endif
 SET_DISK_BANK:
+#if exists USE_NORMAL_32K_ROM
+	LD	(ASCII16_BANK1_SEL),A		;ASCII-16K
+#else
 	LD	(BANK1_SEL),A			;ASCII-8K/Konami-8K
 	LD	(KONAMI_SCC_BANK1_SEL),A	;Konami-8K/Konami-SCC
+#endif
 	PUSH	AF
 	PUSH	HL
 	LD	HL,(BANK1_ADR+11)	;BPB_BytsPerSec	
@@ -300,12 +326,14 @@ SET_DISK_BANK:
 	POP	AF
 	RET
 
-;	HL = HL * A ただし、A=1,2,4,8,16,32,64,128(2のべき乗に限る)
+;	HL = HL * A ただし、A=1,2,4,8,16,32,64,128(2のべき乗に限る)0の場合は256倍
 MUL_AHL:
+	SCF		;無限ループ回避
+MUL_AHL1:
 	RRA		;->CF
 	RET	C
 	ADD	HL,HL
-	JR	MUL_AHL
+	JR	MUL_AHL1
 
 DPB2DD:
 	DB	0F9H	;MEDIA
