@@ -7,12 +7,12 @@
 	ORG	RUN
 
 ; MSX ROM header
-	DB	"AB"   ; ID for auto-executable ROM
-	DW	INIT_ROM   ; Main program execution address.
-	DW	STATEMENT  ; STATEMENT
-	DW	0      ; DEVICE
-	DW	0      ; TEXT
-	DW	0,0,0  ; Reserved
+	DB	"AB"		; ID for auto-executable ROM
+	DW	INIT_ROM	; Main program execution address.
+	DW	STATEMENT	; STATEMENT
+	DW	DEVICE1		; DEVICE
+	DW	0		; TEXT
+	DW	0,0,0		; Reserved
 
 	JP	DISKIO
 	JP	DSKCHG
@@ -32,7 +32,7 @@
 	ORG	0407FH
 	RET
 ; Version
-	DB	"Tablacus DISK ROM Lite v0.2.0.0",0
+	DB	"Tablacus DISK ROM Lite v0.2.0.1",0
 
 	ORG	040FFH
 	RET
