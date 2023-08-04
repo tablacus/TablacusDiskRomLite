@@ -404,6 +404,9 @@ _SYS0D:		;(BDOS)ディスク・リセット
 	RET
 
 _SYS0E:		;(BDOS)カレントドライブの設定
+	LD	A,E
+	CP	2
+	RET	NC
 	LD	(_DVSW),A
 	RET
 

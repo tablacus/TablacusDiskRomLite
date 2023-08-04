@@ -123,6 +123,7 @@ IS_BPB:
 	RET	C
 
 	LD	A,(BANK1_ADR+12)	;BPB_BytsPerSec
+IS_BPB1:
 	CP	1
 	RET	Z
 	CP	2
