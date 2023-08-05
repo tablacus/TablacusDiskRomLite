@@ -393,8 +393,10 @@ DTAX:
 	DW	0
 B_DRIVE:
 	DB	0
-_DVSW:
+_DVSW:			;カレントドライブ
 	DB	0
+_CD:			;カレントディレクトリ
+	DW	0
 DIRENT1:
 	DW	0
 _DIR_BANK:
@@ -405,14 +407,12 @@ PARAM0:
 	DW	0
 PARAM1:
 	DW	0
+_CDX:
+	DW	0
 FDRV:
 	DB	0
 FNAME:
 	DS	8+3
-_CD:			;カレントディレクトリ
-	DW	0
-_CDX:
-	DW	0
 _HL:
 	DW	0
 _SP:
