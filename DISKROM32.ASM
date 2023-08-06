@@ -34,7 +34,7 @@ USE_NORMAL_32K_ROM		EQU	1	;ノーマル32KB ROMを作成する
 	ORG	0407FH
 	RET
 ; Version
-	DB	"Tablacus DISK ROM Lite v0.2.0.4",0
+	DB	"Tablacus DISK ROM Lite v0.2.0.5",0
 
 	ORG	040FFH
 	RET
