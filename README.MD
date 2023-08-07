@@ -90,7 +90,7 @@ https://github.com/hra1129/msx_documents/blob/main/memory/MSX_memory_architectur
 
 [hide_san(ヒデ)](https://twitter.com/_msx_)さん、[Takashi Kobayashi](https://twitter.com/nf_ban)さん、Lite版でうまく動かないディスクイメージを送っていただきありがとうございます。
 
-[ごりぽん](https://twitter.com/goripon_tw)さん、RAM捜索の創作方法、ありがとうございます。
+[ごりぽん](https://twitter.com/goripon_tw)さん、RAM捜索の方法、ありがとうございます。
 
 [ひぽぽ　(ファミコンGimmick!👍)](https://twitter.com/koichironakaza1)さん、実機でのテスト協力ありがとうございます。
 
