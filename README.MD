@@ -93,3 +93,5 @@ https://github.com/hra1129/msx_documents/blob/main/memory/MSX_memory_architectur
 [ごりぽん](https://twitter.com/goripon_tw)さん、RAM捜索の創作方法、ありがとうございます。
 
 [ひぽぽ　(ファミコンGimmick!👍)](https://twitter.com/koichironakaza1)さん、実機でのテスト協力ありがとうございます。
+
+[すーぱーたー⁧⁨ぼ](https://twitter.com/SuperturboZ)さん、DEVICEからの拡張方法のサンプルコードありがとうございます。
