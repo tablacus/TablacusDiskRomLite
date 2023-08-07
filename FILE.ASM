@@ -383,6 +383,8 @@ RBREAD_MEM:
 	LD	(_DTA),HL
 	LD	HL,0FFFFH
 	CALL	ROM_READ
+	XOR	A
+	LD	(FLG_LDIR),A
 	LD	A,(RUNBNF)
 	CP	'R'
 	JR	NZ,RBREAD1
@@ -493,8 +495,6 @@ INIT_PARAM:
 	LD	(PARAM0),HL
 	LD	(PARAM1),HL
 	EX	DE,HL
-	XOR	A
-	LD	(FLG_LDIR),A
 	LD	(RUNBNF),A
 	LD	(VALTYP),A
 	PUSH	HL
@@ -1804,13 +1804,192 @@ CD1:
 	LD	HL,(_CDX)
 	JR	CD2
 
-DEVICE1:
+GET_BASIC_FCB:
+	PUSH	DE
+	INC	HL	;+1
+	LD	E,(HL)	;FCB[1]
+	INC	HL	;+2
+	LD	D,(HL)	;FCB[2]
+	INC	HL	;+3
+	LD	(DIRENT1),DE
+			;FCB[3]
+	INC	HL	;+4
+			;FCB[4]
+	INC	HL	;+5
+	LD	A,(HL)	;FCB[5]
+	INC	HL	;+6
+	LD	(_DIR_BANK),A
+	LD	E,(HL)	;FCB[6]
+	INC	HL	;+7
+	LD	D,(HL)	;FCB[7]
+	INC	HL	;+8
+	LD	(RR_LOW),DE
+	LD	A,(HL)	;FCB[8]
+	INC	HL	;+9
+	LD	(RR_HIGH),A
+	LD	A,(HL)	;FCB[9]
+	INC	HL	;+10
+	LD	(_DTA),HL	;FCB[10]
+	POP	DE
+	RET
+
+SET_BASIC_FCB:
+	PUSH	HL
+	LD	HL,(PTRFIL)
+	INC	HL	;+1
+	PUSH	DE
+	LD	DE,(DIRENT1)
+	LD	(HL),E	;FCB[1]
+	INC	HL	;+2
+	LD	(HL),D	;FCB[2]
+	INC	HL	;+3
+	XOR	A
+	LD	(HL),A	;FCB[3] backup char ハンドリング必要
+	INC	HL	;+4
+			;FCB[4] 変更しない
+	INC	HL	;+5
+	LD	A,(_DIR_BANK)
+	LD	(HL),A	;FCB[5]
+	INC	HL	;+6
+	LD	DE,(RR_LOW)
+	LD	(HL),E	;FCB[6]
+	INC	HL	;+7
+	LD	(HL),D	;FCB[7]
+	INC	HL	;+8
+	LD	A,(RR_HIGH)
+	LD	(HL),A	;FCB[8]
+	INC	HL	;+9
+	LD	(HL),0	;FCB[9]
+	POP	DE
+	POP	HL
+	RET
+
+DEVICE_CHECK:
 	LD	DE,STR_A
 	CALL	CPPROCNM
+	JR	Z,DEVICE_OK
+	LD	DE,STR_ROM
+	CALL	CPPROCNM
+	JR	Z,DEVICE_OK
 	SCF
-	RET	NZ
+	RET
+DEVICE_OK:
 	XOR	A
 	RET
+
+;--------------------------------------
+;FUNC_0:open
+;in
+;	A : 0
+;	C : receive buffer size ?
+;	E : open mode
+;	HL: FCB pointer
+;out
+;	CF: 0=OK ,1=ERROR
+;note:
+;
+; FCB
+; +00: OPEN MODE
+; +01: 対象ファイルのディレクトリエントリのアドレスL
+; +02: 対象ファイルのディレクトリエントリのアドレスH
+; +03: backup charactor buffer
+; +04: device ID (FF=CAS,FE=LPT,FD=CRT,FC=?,other=ROM-SLOT)
+; +05: 対象ディレクトリのバンク
+; +06: ランダムレコードL
+; +07: ランダムレコードM
+; +08: ランダムレコードH
+; +09: バッファインデックス
+; +10: バッファ
+
+DEVICE_0_OPEN:
+	PUSH	DE
+	push	hl
+;
+	LD	A,1		;ドライブA
+	LD	(FDRV),A
+	LD	HL,FILNAM
+	LD	DE,FNAME
+	LD	BC,8+3
+	CALL	INIT_FILE1
+	CALL	ROM_OPEN
+	JP	C,ERROR_FILE_NOT_FOUND
+	pop	hl
+	POP	DE
+	ld	(PTRFIL),hl	;ストアしないとエラーになる
+	ld	(hl),e	;FCB[0]	;open type : 合わせないとエラーになる
+	XOR	A
+	LD	(LEFTX),A
+	CALL	SET_BASIC_FCB
+	ld	a,e
+	cp	8
+	ccf
+	ret
+
+DEVICE_2_CLOSE:
+	XOR	A
+;	LD	(HL),A
+	LD	L,A
+	LD	H,A
+	LD	(PTRFIL),HL
+	RET
+
+DEVICE_ENTRY:
+	CP	8
+	JR	Z,DEVICE_8_SIN
+	INC	A
+	JR	Z,DEVICE_CHECK:
+	DEC	A
+	JR	Z,DEVICE_0_OPEN
+	CP	2
+	JR	Z,DEVICE_2_CLOSE
+	SCF
+	RET
+
+DEVICE_8_SIN:
+	CALL	GET_BASIC_FCB
+	AND	127
+	JR	Z,SIN_READ_DISK
+	LD	HL,(_DTA)
+	DEC	HL
+	INC	(HL)
+	INC	A	;(INC HL)
+	ADD	A,L	;ADD HL,A
+	LD	L,A	;
+	ADC	A,H	;
+	SUB	L	;
+	LD	H,A	;
+SIN_READ1:
+	LD	A,(HL)
+	CP	00AH
+	RET	Z	;ZF=separate
+	CP	01AH
+	JR	Z,SIN_EOF
+	SCF
+	CCF		;ZF=0 CF=0にしたい
+	RET
+SIN_EOF:
+	LD	HL,(_DTA)
+	DEC	HL
+	DEC	(HL)
+SCF_RET:
+	SCF
+	RET
+
+SIN_READ_DISK:
+	LD	HL,128
+	CALL	ROM_READ
+	CALL	SET_BASIC_FCB
+	LD	A,H
+	OR	L
+	JR	Z,SCF_RET
+	LD	DE,(_DTA)
+	ADD	HL,DE
+	LD	(HL),01AH
+	LD	HL,(_DTA)
+	DEC	HL
+	INC	(HL)
+	INC	HL
+	JR	SIN_READ1
 
 CPPROCNM:
 	PUSH	HL
@@ -1836,3 +2015,5 @@ STR_RAMDISK:
 	DB	"RAMDISK",0
 STR_A:
 	DB	"A",0
+STR_ROM:
+	DB	"ROM",0

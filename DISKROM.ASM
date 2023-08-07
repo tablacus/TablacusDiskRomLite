@@ -10,7 +10,7 @@
 	DB	"AB"		; ID for auto-executable ROM
 	DW	INIT_ROM	; Main program execution address.
 	DW	STATEMENT	; STATEMENT
-	DW	DEVICE1		; DEVICE
+	DW	DEVICE_ENTRY	; DEVICE
 	DW	0		; TEXT
 	DW	0,0,0		; Reserved
 
@@ -32,7 +32,7 @@
 	ORG	0407FH
 	RET
 ; Version
-	DB	"Tablacus DISK ROM Lite v0.2.0.5",0
+	DB	"Tablacus DISK ROM Lite v0.3.0.0",0
 
 	ORG	040FFH
 	RET
