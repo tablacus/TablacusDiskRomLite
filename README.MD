@@ -5,8 +5,7 @@
 
 このソフトはMSXのDISK環境のソフトをROM化するソフトです。  
 ROM起動後にH.GONEでフックして、LOAD、BLOAD、FILES、COPYをROMディスクを使うものに置き換えています。  
-
-置き換えでHIMEM,MEMSIZ,STKTOPを256バイト前に変更しています。
+置き換えでHIMEM等を256バイト前に変更しています。(Normal 32KB ROM/ASCII-16Kの場合は320バイトになります)
 
 [Tabacus DISK ROM](https://github.com/tablacus/TablacusDiskRom)との違いはMSXのDISK BIOS ROMが不要なことと現時点ではBASIC環境専用という点になります。
 
@@ -19,9 +18,17 @@ https://github.com/tablacus/TablacusDiskRomLite/releases
 
 1. Windowsのコマンドラインで`msxcat.bat`を実行してシステムとディスクイメージ`ROM.DSK`を連結する
 
-※DISKROM.BIN(8KB)の後ろに2DDのDSKファイルを連結しさえすればやり方は何を使ってもOKです。
 
-2DDの２枚組をROM化する事もできます。誑かしているだけなので２ドライブ使うには２ドライブマシンに限るのかと思いましたが、エミュレータフロッピー１台にしても２枚目をBドライブとして見ることができました。
+※8KバンクのメガROMの場合(ASCII-8K / Konami-8K / Konami-SCC)はDISKROM.BIN(8KB)の後ろにDSKファイルを連結しさえすればやり方は何を使ってもOKです。(ASCII-8Kの場合は2MBのディスクまで作成することができます)
+```bat
+copy /b DISKROM.BIN + DISK.DSK  DISK.ROM
+```
+※Normal 32KB,16KバンクのメガROM(ASCII-16K)の場合はDISKROM32.BIN(8KB)の後ろにDSKファイルを連結しさえすればやり方は何を使ってもOKです。(ASCII-16Kの場合は4MBのディスクまで作成することができます)
+```bat
+copy /b DISKROM32.BIN + DISK.DSK  DISK32.ROM
+```
+
+※8KバンクのメガROMの場合(ASCII-8K / Konami-8K / Konami-SCC)は2DDの２枚組をROM化する事もできます。誑かしているだけなので２ドライブ使うには２ドライブマシンに限るのかと思いましたが、エミュレータフロッピー１台にしても２枚目をBドライブとして見ることができました。
 
 1. DISKROM.BIN(16KB)の後ろに2DDのDSKファイルを2つ連結してください。
 
@@ -32,7 +39,7 @@ copy /b DISKROM.BIN + DISK1.DSK + DISK2.dsk DISK1_2.ROM
 
 ## 実行方法
 
-### メガROMの場合
+### 8KバンクのメガROMの場合(ASCII-8K / Konami-8K / Konami-SCC)
 
 1. ROMスロットに`MSX.ROM`をセット
 2. ROMイメージのタイプを`ASCII-8K`、`Konami-8K`か`Konami-SCC`(512MB以下の場合のみ)のいずれかに設定

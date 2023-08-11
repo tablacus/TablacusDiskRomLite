@@ -1,9 +1,8 @@
 ;	Tablacus DISK ROM Lite for MSX
 ;	Programmed by
 ;	Gaku (Lovers/Tablacus)
-;
-	INCLUDE	"DEF.ASM"
 
+	INCLUDE	"DEF.ASM"
 	ORG	RUN
 
 ; MSX ROM header
@@ -32,7 +31,7 @@
 	ORG	0407FH
 	RET
 ; Version
-	DB	"Tablacus DISK ROM Lite v0.3.0.0",0
+	DB	"Tablacus DISK ROM Lite v0.4.0.0",0
 
 	ORG	040FFH
 	RET
