@@ -450,6 +450,12 @@ ROM_BLOAD:
 	LD	A,(HL)
 	CALL	CAP
 	LD	(RUNBNF),A
+	CP	'R'		;R,Sスイッチじゃ無い場合はオフセット値として処理する
+	JR	Z,RBOS1
+	CP	'S'
+	JR	Z,RBOS1
+	CP	','
+	JR	NZ,RBOS2
 RBOS1:
 	LD	A,(HL)
 	INC	HL
@@ -459,20 +465,16 @@ RBOS1:
 	JR	Z,RBREAD_OSE
 	CP	','		;次のパラメータを探す
 	JR	NZ,RBOS1
-				;オフセット
+RBOS2:				;オフセット
 	LD	(PARAM1),HL
 	LD	A,(HL)
 	OR	A
 	JR	Z,RBREAD_OSE
-	LD	IX,FRMEVL
+	LD	IX,FRMQNT
 	LD	IY,(EXPTBL-1) 	;メインROMスロット
 	CALL	_CALSLT
 	LD	(PARAM1),HL
-	LD	A,(VALTYP)
-	CP	2
-	JR	NZ,RBREAD_OSE
 	LD	HL,(_BUF_ST)
-	LD	DE,(DACDAT)
 	ADD	HL,DE
 	LD	(_BUF_ST),HL
 RBREAD_OSE:

@@ -31,7 +31,7 @@
 	ORG	0407FH
 	RET
 ; Version
-	DB	"Tablacus DISK ROM Lite v0.4.1.0",0
+	DB	"Tablacus DISK ROM Lite v0.4.1.1",0
 
 	ORG	040FFH
 	RET
