@@ -405,8 +405,10 @@ _SYS0D:		;(BDOS)ディスク・リセット
 
 _SYS0E:		;(BDOS)カレントドライブの設定
 	LD	A,E
-	CP	2
-	RET	NC
+_SYS0EX1:
+	CP	8
+	CCF
+	RET	C
 	LD	(_DVSW),A
 	RET
 
