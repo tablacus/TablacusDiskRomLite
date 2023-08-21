@@ -2027,7 +2027,7 @@ GET_BASIC_FCB:
 	LD	D,(HL)	;FCB[2]
 	INC	HL	;+3
 	LD	(DIRENT1),DE
-			;FCB[3]
+			;FCB[3]	backup char
 	INC	HL	;+4
 			;FCB[4]
 	INC	HL	;+5
@@ -2042,9 +2042,7 @@ GET_BASIC_FCB:
 	LD	A,(HL)	;FCB[8]
 	INC	HL	;+9
 	LD	(RR_HIGH),A
-	LD	A,(HL)	;FCB[9]
-	INC	HL	;+10
-	LD	(_DTA),HL	;FCB[10]
+	LD	(_DTA),HL	;FCB[9]
 	POP	DE
 	RET
 
@@ -2058,7 +2056,6 @@ SET_BASIC_FCB:
 	INC	HL	;+2
 	LD	(HL),D	;FCB[2]
 	INC	HL	;+3
-	XOR	A
 	LD	(HL),A	;FCB[3] backup char ハンドリング必要
 	INC	HL	;+4
 			;FCB[4] 変更しない
@@ -2073,10 +2070,24 @@ SET_BASIC_FCB:
 	INC	HL	;+8
 	LD	A,(RR_HIGH)
 	LD	(HL),A	;FCB[8]
-	INC	HL	;+9
-	LD	(HL),0	;FCB[9]
 	POP	DE
 	POP	HL
+	RET
+
+;--------------------------------------
+;FUNC_18:BACKUP
+;in
+;	C : backup charactor
+;	HL: FBC pointer
+;out
+DEVICE_18_BACKUP:
+	PUSH	DE
+	PUSH	HL
+	LD	DE,3
+	ADD	HL,DE
+	LD	(HL),C
+	POP	HL
+	POP	DE
 	RET
 
 DEVICE_CHECK:
@@ -2115,8 +2126,7 @@ DEVICE_OK:
 ; +06: ランダムレコードL
 ; +07: ランダムレコードM
 ; +08: ランダムレコードH
-; +09: バッファインデックス
-; +10: バッファ
+; +09: バッファ
 
 DEVICE_0_OPEN:
 	LD	A,E
@@ -2161,6 +2171,16 @@ DEVICE_ENTRY:
 	JR	Z,DEVICE_CHECK:
 	DEC	A
 	JR	Z,DEVICE_0_OPEN
+	CP	14
+	JR	Z,DEVICE_14_EOF
+	CP	4
+	JR	Z,DEVICE_4_RANDOM
+	CP	10
+	JR	Z,DEVICE_10_LOC
+	CP	12
+	JR	Z,DEVICE_12_LOF
+	CP	2
+	JR	Z,DEVICE_18_BACKUP	
 	CP	2
 	JR	Z,DEVICE_2_CLOSE
 	CP	6
@@ -2174,49 +2194,185 @@ DEVICE_6_SOUT:
 
 DEVICE_8_SIN:
 	CALL	GET_BASIC_FCB
-	AND	127
-	JR	Z,SIN_READ_DISK
-	LD	HL,(_DTA)
-	DEC	HL
-	INC	(HL)
-	INC	A	;(INC HL)
-	ADD	A,L	;ADD HL,A
-	LD	L,A	;
-	ADC	A,H	;
-	SUB	L	;
-	LD	H,A	;
-SIN_READ1:
-	LD	A,(HL)
-	CP	00AH
-	RET	Z	;ZF=separate
-	CP	01AH
-	JR	Z,SIN_EOF
-	SCF
-	CCF		;ZF=0 CF=0にしたい
-	RET
-SIN_EOF:
-	LD	HL,(_DTA)
-	DEC	HL
-	DEC	(HL)
-SCF_RET:
-	SCF
-	RET
-
-SIN_READ_DISK:
-	LD	HL,128
+	LD	HL,1
 	CALL	ROM_READ
-	CALL	SET_BASIC_FCB
 	LD	A,H
 	OR	L
-	JR	Z,SCF_RET
-	LD	DE,(_DTA)
-	ADD	HL,DE
-	LD	(HL),01AH
+	JR	Z,CCF_RET
 	LD	HL,(_DTA)
-	DEC	HL
-	INC	(HL)
+	LD	A,(HL)
+	PUSH	AF
+	CALL	SET_BASIC_FCB
+	POP	AF
+	CP	00AH
+	RET	Z	;ZF=separate
+;	CP	01AH
+;	JR	Z,SCF_RET
+	SCF		;
+CCF_RET:
+	CCF		;ZF=0 CF=0にしたい
+	RET
+
+;--------------------------------------
+;FUNC_4:RANDOM
+;in
+;	A : 4
+;	unknown
+;out
+;	unknown
+;note:
+DEVICE_4_RANDOM:
+	PUSH	DE
+	CALL	GET_BASIC_FCB
+	PUSH	IX
+	LD	IX,FRCINT
+	LD	IY,(EXPTBL-1) 	;メインROMスロット
+	CALL	CAL_MP
+	POP	IX
+	LD	HL,(DACDAT)
+	LD	(RR_LOW),HL
+	XOR	A
+	CALL	SET_BASIC_FCB
+	POP	DE
+	XOR	A
+	RET
+
+;FUNC_10:LOC
+;in
+;	A : 10
+;out
+;	DAC    : value of received bytes
+;	VALTYP : DAC type
+DEVICE_10_LOC:
+	CALL	GET_BASIC_FCB
+	LD	HL,(RR_LOW)
+	JR	RETURN_TYPE8_AHL
+
+;--------------------------------------
+;FUNC_14:EOF
+;in
+;	A : 14
+;out
+;	DAC    : value of EOF value (EOF=-1)
+;	VALTYP : DAC type
+DEVICE_14_EOF:
+	CALL	GET_BASIC_FCB
+	CALL	RBX1
+	JR	C,DEVICE_14_EOF1
+	LD	HL,1
+	CALL	ROM_READ
+	LD	HL,(_DTA)
+	LD	A,(HL)
+	CP	01AH
+	SCF
+	JR	Z,DEVICE_14_EOF1
+	CCF
+DEVICE_14_EOF1:
+	SBC	A,A
+	LD	L,A
+	LD	H,A
+return_type2_hl:
+	ld	(DACDAT),hl
+	ld	a,2
+	ld	(VALTYP),a
+	ret
+
+;--------------------------------------
+;FUNC_16:FPOS
+;in
+;	unknown
+;out
+;	unknown
+;note:
+;	illegal function call
+
+;--------------------------------------
+;FUNC_12:LOF
+;in
+;	A : 12
+;out
+;	DAC    : value of LOC+RSIQLN
+;	VALTYP : DAC type
+DEVICE_12_LOF:
+	CALL	GET_BASIC_FCB
+
+	LD	A,(_DIR_BANK)
+#if exists USE_MORMAL32K_OR_ASCII16
+	LD	(ASCII16_BANK1_SEL),A		;ASCII-16K
+	PUSH	DE
+	LD	HL,(DIRENT1)
+	LD	DE,0001CH
+	ADD	HL,DE
+	CALL	RDSLT_ROM
 	INC	HL
-	JR	SIN_READ1
+	LD	E,A
+	CALL	RDSLT_ROM
+	INC	HL
+	LD	D,A
+	CALL	RDSLT_ROM
+	EX	DE,HL		;AHL=File size
+	POP	DE
+#else
+	LD	(BANK1_SEL),A			;ASCII-8K/Konami-8K
+	LD	(KONAMI_SCC_BANK1_SEL),A	;Konami-8K/Konami-SCC
+	LD	IY,(DIRENT1)
+	LD	L,(IY+01CH)	;AHL=File size
+	LD	H,(IY+01DH)
+	LD	A,(IY+01EH)
+#endif
+RETURN_TYPE8_AHL:
+	OR	A
+	JR	NZ,RT8AHL1
+	BIT	7,H
+	JR	Z,return_type2_hl
+RT8AHL1:
+	PUSH	HL
+	ADD	HL,HL
+	ADC	A,A
+	LD	(DACDAT),A
+	LD	A,0
+	ADC	A,A
+	LD	(DACDAT+1),A
+
+	LD	A,2
+	LD	(VALTYP),A
+	LD	IX,FRCDBL
+	LD	IY,(EXPTBL-1) 	;メインROMスロット
+	CALL	CAL_MP
+
+	LD	HL,DBL32768
+	LD	DE,ARG
+	LD	BC,8
+	LDIR
+
+	LD	IX,DECMUL
+	LD	IY,(EXPTBL-1) 	;メインROMスロット
+	CALL	CAL_MP
+
+	LD	HL,DAC
+	LD	DE,ARG
+	LD	BC,8
+	LDIR
+
+	POP	HL
+	LD	(DACDAT),HL
+
+	LD	A,2
+	LD	(VALTYP),A
+	LD	IX,FRCDBL
+	LD	IY,(EXPTBL-1) 	;メインROMスロット
+	CALL	CAL_MP
+
+	LD	IX,DECADD
+	LD	IY,(EXPTBL-1) 	;メインROMスロット
+	CALL	CAL_MP
+
+	LD	A,8
+	LD	(VALTYP),A
+	RET
+
+DBL32768:
+	DB	045H,032H,076H,080H,0,0,0,0
 
 CPPROCNM:
 	PUSH	HL
