@@ -23,7 +23,7 @@ https://github.com/tablacus/TablacusDiskRomLite/releases
 ```bat
 copy /b DISKROM.BIN + DISK.DSK  DISK.ROM
 ```
-※Normal 32KB,16KバンクのメガROM(ASCII-16K)の場合はDISKROM32.BIN(8KB)の後ろにDSKファイルを連結しさえすればやり方は何を使ってもOKです。(ASCII-16Kの場合は4MBのディスクまで作成することができます)
+※Normal 32KB, 16KバンクのメガROM(ASCII-16K / [Simple MegaROM](https://github.com/hra1129/simple_megarom_cartridge/tree/main))の場合はDISKROM32.BIN(8KB)の後ろにDSKファイルを連結しさえすればやり方は何を使ってもOKです。(ASCII-16Kの場合は4MBのディスクまで作成することができます)
 ```bat
 copy /b DISKROM32.BIN + DISK.DSK  DISK32.ROM
 ```
@@ -45,7 +45,7 @@ copy /b DISKROM.BIN + DISK1.DSK + DISK2.dsk DISK1_2.ROM
 2. ROMイメージのタイプを`ASCII-8K`、`Konami-8K`か`Konami-SCC`(512MB以下の場合のみ)のいずれかに設定
 3. 起動しない場合はリセットする
 
-### 32KBの場合
+### Normal 32KB, 16KバンクのメガROM(ASCII-16K / [Simple MegaROM](https://github.com/hra1129/simple_megarom_cartridge/tree/main))の場合
 
 1. ROMスロットに`MSX32.ROM`をセット
 2. ROMイメージのタイプを`Normal ROM`に設定
