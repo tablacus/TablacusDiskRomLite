@@ -94,8 +94,10 @@ INIT_ROM:
 
 	XOR	A
 #if exists USE_MORMAL32K_OR_ASCII16
+	LD	(ASCII16_BANK0_SEL),A		;似非RAM対策でバンク0を設定
 	LD	(ASCII16_BANK1_SEL),A		;ASCII-16K
 #else
+	LD	(BANK0_SEL),A			;似非RAM対策でバンク0を設定
 	LD	(BANK1_SEL),A			;ASCII-8K/Konami-8K
 	LD	(KONAMI_SCC_BANK1_SEL),A	;Konami-8K/Konami-SCC
 #endif
