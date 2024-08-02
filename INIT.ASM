@@ -167,7 +167,27 @@ B_DRIVE1:
 	CALL	MSX
 OK_FIX_DRIVE:
 #endif
-	RET
+	;拡張スロットの選択を設定する
+	LD	A,(ROM_SLT)
+	LD	D,A
+	AND	00CH
+	LD	E,A
+	LD	A,D
+	AND	3
+	ADD	A,A
+	ADD	A,A
+	ADD	A,A
+	SCF
+	ADC	A,A
+	OR	E
+	LD	E,A
+	LD	D,0
+	LD	HL,SLTATR
+	ADD	HL,DE
+	LD	(HL),060H
+	LD	IY,(EXPTBL-1) ;メインROMスロット
+	LD	IX,ST_BAS	;continue start of MSX-BASIC without executing BASIC programs in ROM
+	JP	CALBAS
 
 NOT_BANK_TYPE:
 				;ROMのタイプが違う
