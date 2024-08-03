@@ -28,9 +28,9 @@ copy /b DISKROM.BIN + DISK.DSK  DISK.ROM
 copy /b DISKROM32.BIN + DISK.DSK  DISK32.ROM
 ```
 
-※8KバンクのメガROMの場合(ASCII-8K / Konami-8K / Konami-SCC)は2DDの２枚組をROM化する事もできます。誑かしているだけなので２ドライブ使うには２ドライブマシンに限るのかと思いましたが、エミュレータフロッピー１台にしても２枚目をBドライブとして見ることができました。
+※8KバンクのメガROMの場合(ASCII-8K / Konami-8K / Konami-SCC)は２枚組をROM化する事もできます。２枚目はBドライブになります。
 
-1. DISKROM.BIN(16KB)の後ろに2DDのDSKファイルを2つ連結してください。
+1. DISKROM.BIN(16KB)の後ろにDSKファイルを2つ連結してください。
 
 Windowsのコマンドラインで２枚のイメージファイルを連結する例
 ```bat
