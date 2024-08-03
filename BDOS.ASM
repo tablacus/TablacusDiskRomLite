@@ -539,12 +539,13 @@ SREAD:
 	RET
 
 _SYS18:		;(BDOS)ログインベクトルの獲得
-	LD	HL,00001H
+	LD	HL,00083H
 	XOR	A
 	RET
 
 _SYS19:		;(BDOS)カレントドライブ番号の獲得
 	LD	A,(_DVSW)
+	AND	A
 	RET
 
 _SYS1A:		;(BDOS)DTAの設定

@@ -31,10 +31,40 @@
 	ORG	0407FH
 	RET
 ; Version
-	DB	"Tablacus DISK ROM Lite v0.5.0.0",0
-
-	ORG	040FFH
+	DB	"Tablacus DISK ROM Lite"
+	ALIGN	32
+	DB	"v0.6.0.0"
+	ALIGN	32
+MSG_ERROR_ROM_MODE:
+#if exists USE_MORMAL32K_OR_ASCII16
+	DB	"Normal ROM/ASCII-16K only!",13,10
+#else
+	DB	"ASCII-8K/Konami-8K/Konami-SCC only!",13,10
+#endif
+	ORG	041BDH
 	RET
+
+	;MBR_Partition1 (2DDのデータ)
+	DB	0		;ブートフラグ
+	DB	0,0,0		;パーティションの最初のセクタ番号(CHS方式)
+	DB	1		;識別子(FAT12)
+	DB	0,0,0		;パーティションの最後のセクタ番号(CHS方式)
+	DW	16,0		;パーティションの最初のセクタ番号(LBA方式)
+	DW	1440,0		;パーティション内のセクタ数(LBA方式)
+
+#if exists USE_MORMAL32K_OR_ASCII16
+#else
+	;MBR_Partition2 (2DDのデータ)
+	DB	0		;ブートフラグ
+	DB	0,0,0		;パーティションの最初のセクタ番号(CHS方式)
+	DB	1		;識別子(FAT12)
+	DB	0,0,0		;パーティションの最後のセクタ番号(CHS方式)
+	DW	16+1440,0	;パーティションの最初のセクタ番号(LBA方式)
+	DW	1440,0		;パーティション内のセクタ数(LBA方式)
+#endif
+
+	ORG	041FEH
+	DB	055H,0AAH	;MBR_Sig
 
 	INCLUDE	"INIT.ASM"
 	INCLUDE	"FILE.ASM"
