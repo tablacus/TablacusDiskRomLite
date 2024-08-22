@@ -85,6 +85,7 @@ https://webmsx.org/?MACHINE=MSX2J&P=NODISK&CARTRIDGE1_URL=https://github.com/tab
 ## ライセンス
 
 [MIT License](https://github.com/tablacus/TablacusDiskRomLite/blob/main/LICENSE)
+MIT License のオープンソースです。  
 
 ※有料、無料にかかわらず同人ソフトなどに組み込んで配布してもらっても問題ありません。
 
