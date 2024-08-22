@@ -86,6 +86,8 @@ https://webmsx.org/?MACHINE=MSX2J&P=NODISK&CARTRIDGE1_URL=https://github.com/tab
 
 [MIT License](https://github.com/tablacus/TablacusDiskRomLite/blob/main/LICENSE)
 
+※有料、無料にかかわらず同人ソフトなどに組み込んで配布してもらっても問題ありません。
+
 ## 感謝
 
 [HRA!](https://twitter.com/thara1129)さんのMSX Memory Architecture のお陰でメガROMに対応することができました。
