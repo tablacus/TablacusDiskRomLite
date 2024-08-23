@@ -33,7 +33,7 @@
 ; Version
 	DB	"Tablacus DISK ROM Lite"
 	ALIGN	32
-	DB	"v0.6.0.1"
+	DB	"v0.6.0.2"
 	ALIGN	32
 MSG_ERROR_ROM_MODE:
 #if exists USE_MORMAL32K_OR_ASCII16
