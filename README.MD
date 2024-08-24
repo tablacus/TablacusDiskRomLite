@@ -55,7 +55,11 @@ copy /b DISKROM.BIN + DISK1.DSK + DISK2.dsk DISK1_2.ROM
 
 [WebMSX](https://webmsx.org/)でサンプルの`MSX.ROM`を起動するリンクはこちら
 
+- 8KバンクのメガROM
 https://webmsx.org/?MACHINE=MSX2J&P=NODISK&CARTRIDGE1_URL=https://github.com/tablacus/TablacusDiskRomLite/raw/main/MSX.ROM
+
+- Normal 32KBのROM
+https://webmsx.org/?MACHINE=MSX2J&P=NODISK&CARTRIDGE1_URL=https://github.com/tablacus/TablacusDiskRomLite/raw/main/MSX32.ROM
 
 ## 現時点の制限と課題
 

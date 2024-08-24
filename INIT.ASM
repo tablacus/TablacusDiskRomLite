@@ -3,10 +3,6 @@
 ;
 
 INIT_ROM:
-	LD	A,(DRVTBL)
-	CP	1
-	RET	Z
-
 	XOR	A
 	LD	HL,0F300H
 	LD	B,068H
@@ -15,16 +11,15 @@ INIT_ROM:
 	LD	A,1
 	LD	(DRVTBL),A
 
-#if exists USE_MORMAL32K_OR_ASCII16
-	LD	HL,(STKTOP)	;起動時の空き容量表示の為
-	LD	BC,-00140H
+	LD	HL,NEW_HIMEM
+	LD	BC,(HIMEM)
+	AND	A
+	SBC	HL,BC
+	JR	NC,INIT1
+	LD	BC,(STKTOP)
 	ADD	HL,BC
-	LD	(STKTOP),HL
-#else
-	LD	HL,STKTOP+1	;起動時の空き容量表示の為
-	DEC	(HL)
-#endif
-
+	LD	(STKTOP),HL	;起動時の空き容量表示の為
+INIT1:
 	XOR	A
 	LD	(_DVSW),A
 	DEC	A		;0FFH
