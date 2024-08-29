@@ -5,7 +5,7 @@
 
 このソフトはMSXのDISK環境のソフトをROM化するソフトです。  
 ROM起動後にH.GONEでフックして、LOAD、BLOAD、FILES、COPYをROMディスクを使うものに置き換えています。  
-置き換えでHIMEM等を256バイト前に変更しています。(Normal 32KB ROM/ASCII-16Kの場合は320バイトになります)
+置き換えでHIMEM等を256バイト前に変更しています。(64KB対応版の場合は400バイト前になります)
 
 [Tabacus DISK ROM](https://github.com/tablacus/TablacusDiskRom)との違いはMSXのDISK BIOS ROMが不要な事になります。  
 似非DOSは動くようになりましたが、本家MSX-DOSやMSX-DOS2、RAMディスクを使用したい場合はTabacus DISK ROMがお勧めです。
