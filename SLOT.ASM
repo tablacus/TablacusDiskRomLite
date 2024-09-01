@@ -298,7 +298,6 @@ CALSLT_E:
 	EX	AF,AF'
 	POP	AF		;保存した裏AF
 	EX	AF,AF'
-	EI
 	RET
 CALSLT_1:
 	LD	(CSSP),SP
@@ -355,6 +354,7 @@ WRSLT:
 	RET
 
 INT38H:
+	DI
 	PUSH	AF
 	PUSH	BC
 	PUSH	HL
@@ -494,7 +494,9 @@ B_DRIVE:
 	DB	0
 _DVSW:			;カレントドライブ
 	DB	0
-_CD:			;カレントディレクトリ
+_CD_A:			;カレントディレクトリ A:
+	DW	0
+_CD_B:			;カレントディレクトリ B:
 	DW	0
 DIRENT1:
 	DW	0
@@ -510,14 +512,16 @@ PARAM1:
 	DW	0
 _CDX:
 	DW	0
-FDRV:
-	DB	0
-FNAME:
-	DS	8+3
+_CHKSP:
+	DB	01FH
 _HL:
 	DW	0
 _SP:
 	DW	0
+FDRV:
+	DB	0
+FNAME:
+	DS	8+3
 _SP_H	EQU	$-1
 
 ISCB_E:
