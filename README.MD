@@ -76,6 +76,8 @@ https://webmsx.org/?MACHINE=MSX2J&P=NODISK&CARTRIDGE1_URL=https://github.com/tab
 - 8KバンクのメガROM (似非DOS)
 https://webmsx.org/?MACHINE=MSX2J&P=NODISK&CARTRIDGE1_URL=https://github.com/tablacus/TablacusDiskRomLite/raw/main/MSX64K.ROM
 
+- 8KバンクのメガROM (BASIC)64KB対応版
+https://webmsx.org/?MACHINE=MSX2J&P=NODISK&CARTRIDGE1_URL=https://github.com/tablacus/TablacusDiskRomLite/raw/main/MSX64KBAS.ROM
 
 ## 現時点の制限と課題
 
