@@ -3,83 +3,58 @@ INT38H_ROM:
 	LD	A,(EXPTBL)	;メインROMに切り替える
 	CALL	ENASLT_00H
 	CALL	00038H
+	LD	A,(RAMAD0)	;メインRAMに切り替える
 ;	JP	ENASLT_00H
 ;
 ;ページ0専門のENASLT
 ;in
 ;A←スロット
-;out
-;A←切り替え前のスロット
 ;破壊
-;BCHL
+;ABCHL
 ;
 ; ページ1 に配置
 ENASLT_00H:
 	DI
-	PUSH	DE
-	LD	L,A
+	LD	H,A
 	AND	3
 	LD	C,A
 	IN	A,(0A8H)
-	LD	H,A
-	AND	0FCH	;ページ0
+	LD	B,0FCH	;ページ0
+	AND	B
 	OR	C
-	LD	D,A	;基本スロット
-
-	LD	A,H
-	AND	3
-	BIT	7,L
+	BIT	7,H
 	JP	Z,ENASLT_NOEXT
-			;拡張スロットの処理
-	OR	080H
-	LD	H,A
-			;対象の拡張スロットを切り替えるために基本スロットを切り替える
-	LD	A,C
+				;拡張スロットの処理
+	PUSH	DE
+	CALL	ENATBL
 	RRCA
 	RRCA
 	LD	C,A
-	LD	A,D
-	AND	03FH	;ページ0
-	OR	C
-	OUT	(0A8H),A
-				;拡張スロットの切り替え
-	LD	A,L
-	RRCA
-	RRCA
-	AND	3
-	LD	C,A
-
-	LD	A,(0FFFFH)
-	CPL
-	LD	B,A
-	AND	0FCH	;ページ0
-	OR	C
-	LD	(0FFFFH),A
-				;基本スロットの切り替え
-	LD	A,D
-	OUT	(0A8H),A
-	LD	A,B
-	AND	3
-	ADD	A,A
-	ADD	A,A
-	JP	WRITE_SLTTBL
+	LD	A,E
+	CALL	AT_3B
+	LD	(HL),E
+	POP	DE
+	RET
 ;
-;	ENASLOTの補助（ページ0・003BH～に配置）
+;	ENASLOTの補助（ページ0・003BH～にも配置）
 ;
-AT_3B:				;対象の拡張スロットを切り替えるために基本スロットを切り替える
+AT_3B:				;ENASUB 対象の拡張スロットを切り替えるために基本スロットを切り替える
 	OUT	(0A8H),A
 	LD	A,(0FFFFH)	;拡張スロットの切り替え
 	CPL
-	LD	B,A
-	AND	E
+	AND	B
 	OR	C
 	LD	(0FFFFH),A
+	LD	E,A
 				;基本スロットの切り替え
 	LD	A,D
 	OUT	(0A8H),A
 	RET
 AT_3B_E:
 
+#endif
+
+AT_GETSLT:
 AT_ISC:
 	ORG	ISC,AT_ISC-RUN
 ;
@@ -87,27 +62,179 @@ AT_ISC:
 ; ページ3 に配置
 
 ;
+;	現在のスロットを知る
+;in
+;HL←上位2ビットで切り替えるページを指定
+;out
+;A→スロット
+;※ROM、RAMの両方のルーチンを使うため絶対番地を使わない
+_GETSLT:
+	PUSH	HL
+	IN	A,(0A8H)
+
+	BIT	7,H
+	JR	NZ,GETSLT_HIGH
+	BIT	6,H
+	LD	HL,EXPTBL
+	JR	NZ,GETSLT_40H
+GETSLT_00H:				;ページ0
+	AND	3
+	ADD	A,L
+	LD	L,A
+	BIT	7,(HL)
+	JR	Z,GETSLT_1
+	ADD	A,SLTTBL-EXPTBL		;拡張スロットをワークアリアから取得
+	LD	L,A
+	LD	A,(HL)
+GETSLT_3:
+	RLCA
+	RLCA
+GETSLT_2:
+	AND	00CH
+	LD	H,A
+	LD	A,L
+	SUB	LOW SLTTBL - 080H
+	OR	H
+	POP	HL
+	RET
+GETSLT_1:				;スロットは拡張されていない
+	SUB	LOW EXPTBL
+	POP	HL
+	RET
+
+GETSLT_40H:				;ページ1
+	RRCA
+	RRCA
+	AND	3
+	ADD	A,L
+	LD	L,A
+	BIT	7,(HL)
+	JR	Z,GETSLT_1
+	ADD	A,SLTTBL-EXPTBL
+	LD	L,A
+	LD	A,(HL)
+	JR	GETSLT_2
+
+GETSLT_HIGH:
+	BIT	6,H
+	LD	HL,EXPTBL
+	JR	NZ,GETSLT_C0H
+GETSLT_80H:				;ページ2
+	RRCA
+	RRCA
+	RRCA
+	RRCA
+	AND	3
+	ADD	A,L
+	LD	L,A
+	BIT	7,(HL)
+	JR	Z,GETSLT_1
+	ADD	A,SLTTBL-EXPTBL
+	LD	L,A
+	LD	A,(HL)
+	RRCA
+	RRCA
+	JR	GETSLT_2
+
+GETSLT_C0H:				;ページ3
+	RLCA
+	RLCA
+	AND	3
+	ADD	A,L
+	LD	L,A
+	BIT	7,(HL)
+	JR	Z,GETSLT_1
+	ADD	A,SLTTBL-EXPTBL
+	LD	L,A
+	LD	A,(HL)
+	RLCA
+	RLCA
+	JR	GETSLT_3
+
+#if exists _RAM64K
+SAME_SLOT_00H:			;ページ0とページ3のスロットが同一
+	OUT	(0A8H),A
+	LD	A,(0FFFFH)	;拡張スロットの切り替え
+	CPL
+	AND	0FCH		;ページ0マスク
+	OR	C
+	LD	(0FFFFH),A
+	LD	(HL),A
+	RET
+
+ENASLT_HIGH:
+	BIT	6,H
+	RET	NZ			;ページ3はスロット切り替え不可
+;
+;ページ2専門のENASLT
+;in
+;A←スロット
+;破壊
+;ABCHL
+;
+ENASLT_80H:
+	DI
+	LD	L,A
+	AND	3
+	RLCA
+	RLCA
+	RLCA
+	RLCA
+	LD	C,A
+	IN	A,(0A8H)
+	LD	B,0CFH	;ページ2マスク
+	AND	B
+	OR	C
+	BIT	7,L
+	JP	Z,ENASLT_NOEXT
+			;拡張スロットの処理
+	PUSH	DE
+	CALL	ENATBL_BIOS_CHECK
+	RLCA
+	RLCA
+	LD	C,A
+	LD	A,E
+	CALL	ENASUB
+	LD	(HL),E
+	POP	DE
+	RET
+;
 ;ENASLT
 ;in
 ;A←スロット
 ;HL←上位2ビットで切り替えるページを指定
-;out
-;A←切り替え前のスロット
 ;破壊
-;BCHL
+;ABCHL
 ;
 ENASLT:
 	BIT	7,H
-	JR	NZ,ENASLT1
+	JR	NZ,ENASLT_HIGH
 	BIT	6,H
 	JR	NZ,ENASLT_40H
 _ENASLT_00H:
-	PUSH	HL
-	LD	HL,08002H
-	ADD	HL,SP
-	POP	HL
-	JR	NC,_ENASLT_00H_S
+	DI
+	LD	H,A
+	AND	3
+	LD	C,A
+	IN	A,(0A8H)
+	AND	0FCH	;ページ0マスク
+	OR	C
+	BIT	7,H
+	JR	Z,ENASLT_NOEXT
+			;拡張スロットの処理
+	PUSH	DE
+	LD	B,H
+	CALL	ENATBL
+	RRCA
+	RRCA
+	LD	C,A
+	LD	A,E
+	CP	D
+	POP	DE
+	JR	Z,SAME_SLOT_00H	;ページ0とページ3のスロットが同一の場合
+	LD	H,B
 ENASLT_SUB:
+	LD	A,H		;ページ3でスロットを指定するためにページ1のROMのルーチンを使う
 	PUSH	IX
 	LD	IX,ENASLT_00H
 INT38H_SUB1:
@@ -117,6 +244,7 @@ INT38H_SUB1:
 	POP	IY
 	POP	IX
 	RET
+
 _ENASLT_00H_S:
 	LD	(ENASLT_SP1),SP
 	LD	SP,SPBUF
@@ -129,146 +257,80 @@ INT38H_SUB:
 	PUSH	IX
 	LD	IX,INT38H_ROM
 	JR	INT38H_SUB1
+
+ENASLT_BIOS:
+	POP	DE
+	LD	A,L
+	CALL	_ENASLT
+	POP	DE
+	RET
+
+ENATBL_BIOS_CHECK:
+	LD	D,A
+	LD	A,(0000H)
+	CP	0F3H	;0000H が DI の場合はページ0は BIOS とみなす
+	JR	Z,ENASLT_BIOS
+	LD	H,L
+	LD	A,D
+ENATBL:
+	LD	D,A	;基本スロットに出力する値
+			;対象の拡張スロットを切り替えるために基本スロットを切り替える
+	LD	A,H
+	AND	3
+	LD	C,A	;C=スロット#
+
+	;スロットテーブル
+	LD	L,LOW SLTTBL
+	ADD	A,L
+	LD	L,A
+			;対象の拡張スロットを切り替えるために基本スロットを切り替える
+	LD	A,C	;C=スロット#
+	RRCA
+	RRCA		;ページ3
+	LD	C,A
+	LD	A,D	;基本スロットに出力する値
+	AND	03FH	;ページ3マスク
+	OR	C
+	LD	E,A	;基本スロットでページ3にスロットを割り当てる
+	LD	A,H
+	AND	00CH
+	LD	H,HIGH SLTTBL
+	RET
+ENASLT_NOEXT_00H:
+
+ENASLT_NOEXT:				;スロットが拡張されていない場合
+	OUT	(0A8H),A
+	RET
+
 ;
 ;ページ1専門のENASLT
 ;in
 ;A←スロット
-;out
-;A←切り替え前のスロット
 ;破壊
-;BCHL
+;ABCHL
 ;
 ENASLT_40H:
 	DI
-	PUSH	DE
 	LD	L,A
 	AND	3
-	ADD	A,A
-	ADD	A,A
+	RLCA
+	RLCA
 	LD	C,A
 	IN	A,(0A8H)
-	LD	H,A
-	AND	0F3H	;ページ1
+	LD	B,0F3H	;ページ1マスク
+	AND	B
 	OR	C
-	LD	D,A	;基本スロットに出力する値
-
-	LD	A,H	;切り替えページ
-	RRCA
-	RRCA
-	AND	3
 	BIT	7,L
 	JR	Z,ENASLT_NOEXT
 			;拡張スロットの処理
-	OR	080H
-	LD	H,A	;基本スロットに出力する値
-			;対象の拡張スロットを切り替えるために基本スロットを切り替える
-	AND	3
-	RRCA
-	RRCA
-	LD	C,A
-
-	LD	A,D	;基本スロットに出力する値
-	AND	03FH
-	OR	C
-	LD	E,A	;基本スロットでページ3にスロットを割り当てる
-
-	LD	A,L
-	AND	00CH	;ページ1
-	LD	C,A
-
-	LD	A,E
-	LD	E,0F3H	;ページ1
-	CALL	ENASUB
-
-	LD	A,B
-	AND	00CH
-WRITE_SLTTBL:		;SLTTBLを書き換える
-	OR	H	;A=拡張スロット H=基本スロット
-	LD	C,A
-
-	LD	A,L
-	AND	3
-	ADD	A,LOW SLTTBL
-	LD	L,A
-	LD	H,HIGH SLTTBL
-	LD	(HL),B	;B:拡張スロットに設定した値
-	LD	A,C	;ENASLTする前のスロット情報をAで返す
-	POP	DE
-	RET
-
-ENASLT_NOEXT:				;スロットが拡張されていない場合
-	LD	E,A
-	LD	A,D
-	OUT	(0A8H),A
-	LD	A,E	;ENASLTする前のスロット情報をAで返す
-	POP	DE
-	RET
-
-ENASLT1:
-	BIT	6,H
-	RET	NZ			;ページ3はスロット切り替え不可
-;
-;ページ2専門のENASLT
-;in
-;A←スロット
-;out
-;A←切り替え前のスロット
-;破壊
-;BCHL
-;
-ENASLT_80H:
-	DI
 	PUSH	DE
-	LD	L,A
-	AND	3
-	ADD	A,A
-	ADD	A,A
-	ADD	A,A
-	ADD	A,A
+	CALL	ENATBL_BIOS_CHECK
 	LD	C,A
-	IN	A,(0A8H)
-	LD	H,A
-	AND	0CFH	;ページ2
-	OR	C
-	LD	D,A	;基本スロット
-
-	LD	A,H
-	RRCA
-	RRCA
-	RRCA
-	RRCA
-	AND	3
-	BIT	7,L
-	JR	Z,ENASLT_NOEXT
-			;拡張スロットの処理
-	OR	080H
-	LD	H,A
-			;対象の拡張スロットを切り替えるために基本スロットを切り替える
-	LD	A,A
-	AND	3
-	RRCA
-	RRCA
-	LD	C,A
-	LD	A,D
-	AND	03FH	;ページ2
-	OR	C
-	LD	E,A
-
-	LD	A,L
-	RLCA
-	RLCA
-	AND	030H
-	LD	C,A
-
 	LD	A,E
-	LD	E,0CFH	;ページ2
 	CALL	ENASUB
-
-	LD	A,B
-	AND	030H	;ページ2
-	RRCA
-	RRCA
-	JR	WRITE_SLTTBL
+	LD	(HL),E
+	POP	DE
+	RET
 
 CALLF:
 	EX	(SP),HL
@@ -285,9 +347,9 @@ CALLF:
 	POP	AF
 	EX	(SP),HL
 CALSLT:
+	DI
 	EX	AF,AF'
 	PUSH	AF		;裏AFを保存
-	DI
 	PUSH	HL
 	LD	HL,08002H
 	ADD	HL,SP
@@ -309,11 +371,16 @@ CSSP	EQU	$-2
 
 CALSLT_2:
 	PUSH	HL
-	PUSH	BC
 	LD	A,IXH
 	LD	H,A
+	CALL	_GETSLT
+	CP	IYH
+	JR	Z,CALSLT_3
+	PUSH	BC
+	PUSH	AF
 	LD	A,IYH
 	CALL	ENASLT
+	POP	AF
 	POP	BC
 	LD	L,A
 	LD	A,IXH
@@ -329,28 +396,63 @@ CALSLT_2:
 	EX	AF,AF'
 	POP	BC
 	POP	HL
+	EI
 	RET
 
+CALSLT_3:
+	POP	HL
+	EX	AF,AF'
+	JP	(IX)
+
 RDSLT:
+	DI
+	PUSH	DE
+	LD	D,A
+	CALL	_GETSLT
+	CP	D
+	JR	Z,RDSLT1
+	LD	E,A
+	LD	A,D
 	PUSH	HL
 	CALL	ENASLT
 	POP	HL
 	LD	B,(HL)
 	PUSH	BC
+	LD	A,E
 	PUSH	HL
 	CALL	ENASLT
 	POP	HL
 	POP	AF
+	POP	DE
+	RET
+RDSLT1:
+	LD	A,(HL)
+	POP	DE
 	RET
 
 WRSLT:
+	DI
+	PUSH	DE
+	LD	D,A
+	CALL	_GETSLT
+	CP	D
+	JR	Z,WRSLT1
+	PUSH	AF
 	PUSH	HL
+	LD	A,D
 	CALL	ENASLT
 	POP	HL
 	LD	(HL),E
+	POP	AF
 	PUSH	HL
 	CALL	ENASLT
 	POP	HL
+	POP	DE
+	RET
+
+WRSLT1:
+	LD	(HL),E
+	POP	DE
 	RET
 
 INT38H:
@@ -383,6 +485,7 @@ LDIR_PAGE1_RAM:
 	POP	DE
 	LD	HL,BUF
 	LDIR
+	LD	A,(ROM_SLT)
 	CALL	ENASLT_40H
 	JP	LDIR_PAGE1_ROM
 ISC_E:
@@ -518,10 +621,12 @@ _HL:
 	DW	0
 _SP:
 	DW	0
+_SP_H	EQU	$-1
 FDRV:
 	DB	0
 FNAME:
 	DS	8+3
-_SP_H	EQU	$-1
+IS_BIOS:			;C-BIOSの場合は0
+	DB	0FFH
 
 ISCB_E:
