@@ -19,6 +19,10 @@ https://github.com/tablacus/TablacusDiskRomLite/releases
 
 1. Windowsのコマンドラインで`msxcat.bat`を実行してシステムとディスクイメージ`ROM.DSK`を連結する
 
+ROMのタイプと64KB対応版の組み合わせで4種類のBINがあります。
+
+BASICで`MKI$`、`CVI`を使わない場合、基本的に64KB対応版は必要ありません。  
+似非DOSで使う場合は必ず、64KB対応版を使ってください。
 
 ※8KバンクのメガROMの場合(ASCII-8K / Konami-8K / Konami-SCC)はDISKROM.BIN(8KB)の後ろにDSKファイルを連結しさえすればやり方は何を使ってもOKです。(ASCII-8Kの場合は2MBのディスクまで作成することができます)
 ```bat
