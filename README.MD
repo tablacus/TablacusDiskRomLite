@@ -83,6 +83,17 @@ https://webmsx.org/?MACHINE=MSX2J&P=NODISK&CARTRIDGE1_URL=https://github.com/tab
 - 8KバンクのメガROM (BASIC)64KB対応版
 https://webmsx.org/?MACHINE=MSX2J&P=NODISK&CARTRIDGE1_URL=https://github.com/tablacus/TablacusDiskRomLite/raw/main/MSX64KBAS.ROM
 
+## MSX 標準仕様との差異
+
+- **COPY 文について**  
+  COPY 文は基本的に、VDP コマンドの **LMMC（CPU → VRAM 論理転送）** を使用しています。  
+  ただし、`PSET` を使用しており、かつ以下の条件を満たす場合は、VDP コマンドの  
+  **HMMC（CPU → VRAM 高速転送）** を使用して高速化します。
+
+  1. 256 色の SCREEN 8 の場合  
+  2. 16 色の SCREEN 5 / 7 の場合で、X方向転送ドット数と 転送先基準点 X座標の両方が偶数のとき  
+  3. 4 色の SCREEN 6 の場合で、X方向転送ドット数と 転送先基準点 X座標の両方が 4 で割り切れるとき
+
 ## 現時点の制限と課題
 
 1. ~~パラメータは文字列しか使えない~~  
