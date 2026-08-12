@@ -217,7 +217,7 @@
             204449534B20524F    
             4D204C697465        
 000096 4096                         ALIGN   32
-0000A0 40A0 76302E372E342E31        DB  "v0.7.4.1"
+0000A0 40A0 76302E372E342E32        DB  "v0.7.4.2"
 0000A8 40A8                         ALIGN   32
        40C0                     MSG_ERROR_ROM_MODE:
                                 #if exists USE_NORMAL32K_OR_ASCII16
@@ -4474,7 +4474,7 @@
 001A72 5A72 D5              11      PUSH    DE
 001A73 5A73 FDE1            14      POP IY
 001A75 5A75 CD3F5C          17      CALL    INIT_FILE
-001A78 5A78 FD361801        19      LD  (IY+24),1
+001A78 5A78 FD361800        19      LD  (IY+24),0
 001A7C 5A7C CD5151          17      CALL    GET_DIR_DAT
        5A7F                     S12X1:
 001A7F 5A7F CD024F          17      CALL    FILESE
