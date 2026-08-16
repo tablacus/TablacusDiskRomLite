@@ -1581,6 +1581,9 @@ FILESE0:
 	SCF
 	RET	Z		;!!!:(ZF=1) CF=1
 FILESE1:
+	INC	(IY+24)			;スキップしたエントリの分だけ呼び出し元の
+					;検索位置カウンタ(FCB+24)を進めておく
+					;(マッチした分はS12X1側でさらに+1する)
 	CALL	FNEXT
 	JR	NZ,FILESE0
 	OR	0FFH		;ZF=0 CF=0
