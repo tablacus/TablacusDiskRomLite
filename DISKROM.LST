@@ -209,7 +209,7 @@
             204449534B20524F    
             4D204C697465        
 000096 4096                         ALIGN   32
-0000A0 40A0 76302E372E342E33        DB  "v0.7.4.3"
+0000A0 40A0 76302E372E342E34        DB  "v0.7.4.4"
 0000A8 40A8                         ALIGN   32
        40C0                     MSG_ERROR_ROM_MODE:
                                 #if exists USE_NORMAL32K_OR_ASCII16
@@ -781,114 +781,43 @@
                                 ;   ページ2/ページ3
                                 ;
                                 #if exists USE_NORMAL32K_OR_ASCII16
-                                    DI
-                                    LD  (_SP),SP
-                                    LD  A,(_SP_H)
-                                    CP  0C0H
-                                    JR  NC,SPJ1
-                                    LD  SP,SPBUF
-                                SPJ1:
-                                LDIR_PAGE2_1:
-                                    LD  A,B
-                                    OR  C
-                                    JR  Z,LDIRE
-                                
-                                    PUSH    BC
-                                    PUSH    DE
-                                    PUSH    HL
-                                    LD  A,(ROM_SLT)
-                                    LD  H,080H
-                                    CALL    _ENASLT
-                                    POP HL
-                                    POP DE
-                                    POP BC
-                                LDIR_PAGE2_2:
-                                    BIT 6,D
-                                    JR  NZ,LDIR_PAGE2_4
-                                
-                                    PUSH    BC
-                                    PUSH    DE
-                                    LD  DE,BUF
-                                
-                                    LD  A,B
-                                    OR  A
-                                    JR  Z,LDIR_PAGE2_3
-                                    LD  BC,00100H       ;B != 0 の場合は256バイトずつ転送
-                                LDIR_PAGE2_3:
-                                    PUSH    BC
-                                    LDIR
-                                    LD  (_HL),HL
-                                
-                                    LD  A,(RAMAD2)
-                                    LD  H,080H
-                                    CALL    _ENASLT
-                                
-                                    POP BC
-                                    POP DE
-                                    LD  HL,BUF
-                                    LDIR
-                                
-                                    LD  HL,(_HL)
-                                    POP BC
-                                    LD  A,B
-                                    OR  A
-                                    JR  Z,LDIRE
-                                    DEC B
-                                    JR  LDIR_PAGE2_1
-                                LDIR_PAGE2_4:               ;ページ3
-                                #endif
+                                LDIR_PAGE2_0:
+                                    RES 7, H
+                                    SET 6, H
+                                    LD  A,(_BANK)
+                                    JP  LDIR_16K
+                                #else
 000548 4548 EDB0                    LDIR
+00054A 454A C9              10      RET
+                                #endif
                                 
                                 #if exists USE_NORMAL32K_OR_ASCII16
-                                LDIRE2:
-                                    PUSH    DE
-                                    PUSH    HL
-                                    LD  A,(RAMAD2)
-                                    LD  H,080H
-                                    CALL    _ENASLT
-                                    POP HL
-                                    POP DE
-                                LDIRE:
-                                    LD  SP,(_SP)
-                                #else
-       454A                     LDIRE2:
+                                LDIR_PAGE2_1:
+                                    CALL    LDIRE2
+                                    JR  LDIR_PAGE2_0
                                 #endif
-00054A 454A C9              10      RET
                                 ;
                                 ;   ディスクからV-RAMへの転送
                                 ;
        454B                     ROM_LDIRVM:
+00054B 454B DD215C00        14      LD  IX,LDIRVM
                                 #if exists USE_NORMAL32K_OR_ASCII16
-                                    DI
-                                    LD  (_SP),SP
-                                    LD  A,(_SP_H)
-                                    CP  0C0H
-                                    JR  NC,SPJ2
-                                    LD  SP,SPBUF
-                                SPJ2:
+                                    RES 7, H
+                                    SET 6, H
+                                    LD  A,(_BANK)
                                     PUSH    BC
                                     PUSH    DE
-                                    PUSH    HL
-                                    LD  A,(ROM_SLT)
-                                    LD  H,080H
-                                    CALL    _ENASLT
-                                    POP HL
-                                    POP DE
-                                    POP BC
-                                #endif
-00054B 454B C5              11      PUSH    BC
-00054C 454C D5              11      PUSH    DE
-00054D 454D DD215C00        14      LD  IX,LDIRVM
+                                    CALL    LDIRVM_16K
+                                #else
+00054F 454F C5              11      PUSH    BC
+000550 4550 D5              11      PUSH    DE
 000551 4551 CDEF44          17      CALL    CALSLT_BIOS_PAGE0
+                                #endif
 000554 4554 E1              10      POP HL
 000555 4555 C1              10      POP BC
 000556 4556 09              11      ADD HL,BC
 000557 4557 EB               4      EX  DE,HL
-                                #if exists USE_NORMAL32K_OR_ASCII16
-                                    JR  LDIRE2
-                                #else
 000558 4558 C9              10      RET
-                                #endif
                                 ;
                                 ;   ページ0/ページ1
                                 ;
@@ -921,10 +850,18 @@
 000564 4564 EDA0            16      LDI         ;ページ0 直接転送
 000566 4566 EA6045          10      JP  PE,LDIR_PAGE0_1
                                 #if exists USE_NORMAL32K_OR_ASCII16
-                                    JP  LDIRE2
-                                #else
-000569 4569 C9              10      RET
+                                LDIRE2:
+                                    PUSH    DE
+                                    PUSH    HL
+                                    LD  A,(RAMAD2)
+                                    LD  H,080H
+                                    CALL    _ENASLT
+                                    POP HL
+                                    POP DE
+                                LDIRE:
+                                    LD  SP,(_SP)
                                 #endif
+000569 4569 C9              10      RET
                                 
        456A                     LDIR_PAGE0_SLT:     ;ページ0 WRSLTを使用
 00056A 456A EB               4      EX  DE,HL       ;転送方向(DE)→(HL)
@@ -946,7 +883,7 @@
 000580 4580 EA6B45          10      JP  PE,LDIR_PAGE0_SLT1
 000583 4583 EB               4      EX  DE,HL       ;転送方向(HL)→(DE)
                                 #if exists USE_NORMAL32K_OR_ASCII16
-                                    JP  LDIRE2
+                                    JR  LDIRE2
                                 #else
 000584 4584 C9              10      RET
                                 #endif
@@ -957,7 +894,11 @@
                                 LDIR_PAGE1:         ;ページ1
                                     LD  A,B
                                     OR  C
+                                #if exists USE_NORMAL32K_OR_ASCII16
                                     JP  Z,LDIRE2
+                                #else
+                                    RET Z
+                                #endif
                                 
                                     LD  A,D
                                     CP  07FH        ;ページ2と被る可能性？($7FXX)
@@ -994,7 +935,11 @@
                                     POP BC
                                     LD  A,B
                                     OR  A
+                                #if exists USE_NORMAL32K_OR_ASCII16
                                     JP  Z,LDIRE2
+                                #else
+                                    RET Z
+                                #endif
                                     DEC B
                                     JR  LDIR_PAGE1
                                 
@@ -2688,6 +2633,8 @@
 000F41 4F41 CB19             8      RR  C           ;/8
 000F43 4F43 09              11      ADD HL,BC
                                 #if exists USE_NORMAL32K_OR_ASCII16
+                                    XOR A
+                                    LD  (_BANK),A
                                     LD  A,L
                                     LD  BC,-00020H  ;先頭の8KB部分
                                     ADD HL,BC
@@ -5478,7 +5425,22 @@
        F2BE                     _ENASLT_40H:
 001BF5 F2BE 2640             7      LD  H,040H
 001BF7 F2C0 C32400          10      JP  _ENASLT
-                                
+                                ;
+                                ; ASCII-16Kの場合の処理
+                                ;
+                                #if exists USE_NORMAL32K_OR_ASCII16
+                                LDIR_16K:
+                                    LD  (ASCII16_BANK0_SEL),A
+                                    LDIR
+                                LDIR_16K_E:
+                                    XOR A
+                                    LD  (ASCII16_BANK0_SEL),A
+                                    RET
+                                LDIRVM_16K:
+                                    LD  (ASCII16_BANK0_SEL),A
+                                    CALL    LDIRVM
+                                    JR  LDIR_16K_E
+                                #endif
        F2C3                     _RESULT:
 001BFA F2C3 00                      DB  0
        F2C4                     _BANK:
