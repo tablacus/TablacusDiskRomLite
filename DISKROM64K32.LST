@@ -217,7 +217,7 @@
             204449534B20524F    
             4D204C697465        
 000096 4096                         ALIGN   32
-0000A0 40A0 76302E372E342E34        DB  "v0.7.4.4"
+0000A0 40A0 76302E372E342E35        DB  "v0.7.4.5"
 0000A8 40A8                         ALIGN   32
        40C0                     MSG_ERROR_ROM_MODE:
                                 #if exists USE_NORMAL32K_OR_ASCII16
