@@ -118,17 +118,23 @@ LDIR_PAGE0_SLT1:
 	RET
 #endif
 
+;ページ1転送の終了処理
+;_RAM64K の #if の内側では #if exists が展開されないため、終了処理をここで定義して飛ばす
+#if exists USE_NORMAL32K_OR_ASCII16
+LDIR_PAGE1_FIN:
+	JP	LDIRE2
+#else
+LDIR_PAGE1_FIN:
+	RET
+#endif
+
 #if exists _RAM64K
 LDIR_PAGE1_DEHL:
 	EX	DE,HL		;転送方向(HL)→(DE)
 LDIR_PAGE1:			;ページ1
 	LD	A,B
 	OR	C
-#if exists USE_NORMAL32K_OR_ASCII16
-	JP	Z,LDIRE2
-#else
-	RET	Z
-#endif
+	JP	Z,LDIR_PAGE1_FIN
 
 	LD	A,D
 	CP	07FH		;ページ2と被る可能性？($7FXX)
@@ -165,11 +171,7 @@ LDIR_PAGE1_ROM:
 	POP	BC
 	LD	A,B
 	OR	A
-#if exists USE_NORMAL32K_OR_ASCII16
-	JP	Z,LDIRE2
-#else
-	RET	Z
-#endif
+	JP	Z,LDIR_PAGE1_FIN
 	DEC	B
 	JR	LDIR_PAGE1
 
