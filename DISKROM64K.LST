@@ -799,9 +799,18 @@
                                 #endif
                                 
                                 #if exists USE_NORMAL32K_OR_ASCII16
-                                LDIR_PAGE2_1:
-                                    CALL    LDIRE2
-                                    JR  LDIR_PAGE2_0
+                                LDIR_PAGE2_1:           ;ページ1からページ2へ跨ぐ残りの転送
+                                    PUSH    BC
+                                    PUSH    DE
+                                    PUSH    HL
+                                    LD  A,(RAMAD2)
+                                    LD  H,080H
+                                    CALL    _ENASLT     ;ページ2をRAMに戻す(転送先を書き込み可能にする)
+                                    POP HL
+                                    POP DE
+                                    POP BC
+                                    CALL    LDIR_PAGE2_0    ;残りをコピーする
+                                    JP  LDIRE2      ;SPを復帰して呼び出し元へ戻る
                                 #endif
                                 ;
                                 ;   ディスクからV-RAMへの転送
